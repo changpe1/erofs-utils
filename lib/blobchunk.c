@@ -89,7 +89,7 @@ static struct erofs_blobchunk *erofs_blob_getchunk(struct erofs_sb_info *sbi,
 	DBG_BUGON(erofs_blkoff(sbi, blkpos));
 
 	if (sbi->extra_devices)
-		chunk->device_id = 1;
+		chunk->device_id = sbi->extra_devices;
 	else
 		chunk->device_id = 0;
 	chunk->blkaddr = erofs_blknr(sbi, blkpos);
@@ -443,7 +443,7 @@ int tarerofs_write_chunkes(struct erofs_inode *inode, erofs_off_t data_offset)
 
 	inode->u.chunkformat |= chunkbits - sbi->blkszbits;
 	if (sbi->extra_devices) {
-		device_id = 1;
+		device_id = sbi->extra_devices;
 		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_INDEXES;
 		unit = sizeof(struct erofs_inode_chunk_index);
 		DBG_BUGON(erofs_blkoff(sbi, data_offset));
@@ -497,7 +497,7 @@ int erofs_mkfs_dump_blobs(struct erofs_sb_info *sbi)
 			return -errno;
 
 		if (sbi->extra_devices)
-			sbi->devs[0].blocks = erofs_blknr(sbi, length);
+			sbi->devs[sbi->extra_devices - 1].blocks = erofs_blknr(sbi, length);
 		else
 			datablob_size = length;
 	}
